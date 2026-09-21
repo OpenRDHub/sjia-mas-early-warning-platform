@@ -1,1 +1,6 @@
 _intro/
+.env
+*.db
+data/real_samples/
+__pycache__/
+.pytest_cache/

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>护士站 - 紧急告警</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         background: #1a222c; color: #fff; font-size: 18px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px; }
+  h1 { font-size: 24px; color: #ff6b5e; margin-bottom: 6px; }
+  .sub { color: #8fa3b8; font-size: 14px; margin-bottom: 18px; }
+  .alert-card { background: #2b1a1a; border: 2px solid #e74c3c; border-radius: 12px;
+                padding: 18px 20px; margin-bottom: 14px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(231,76,60,.4); }
+                     50% { box-shadow: 0 0 0 8px rgba(231,76,60,0); } }
+  .alert-card .rules { font-size: 22px; font-weight: 700; color: #ff6b5e;
+                       margin-bottom: 8px; }
+  .alert-card .meta { color: #d9b8b4; font-size: 15px; line-height: 1.7; }
+  .empty { text-align: center; color: #5c7186; padding: 60px 0; font-size: 20px; }
+  .dot { display: inline-block; width: 10px; height: 10px; background: #27ae60;
+         border-radius: 50%; margin-right: 8px; animation: blink 2s infinite; }
+  @keyframes blink { 50% { opacity: .3; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>护士站 · 紧急告警</h1>
+  <div class="sub"><span class="dot"></span>每 5 秒自动刷新 · 红旗患者直推此处</div>
+  <div id="list"></div>
+  <div class="empty" id="empty">当前无紧急告警</div>
+</div>
+
+<script>
+const RULE_NAMES = {
+  RF001: '急性心梗疑似', RF002: '胸痛待排查', RF003: '颅内急症疑似',
+  RF004: '消化道出血', RF005: '脑卒中疑似', RF006: '急性呼吸窘迫',
+  RF007: '发热伴惊厥', RF008: '意识障碍', RF009: '过敏性休克疑似',
+  RF010: '急腹症', RF011: '肠梗阻疑似', RF012: '糖尿病酮症',
+  RF013: '低血糖疑似', RF014: '异位妊娠破裂疑似', RF015: '主动脉夹层疑似',
+  RF016: '急性会厌炎疑似', RF017: '眼外伤/化学伤', RF018: '断肢/开放骨折',
+  RF019: '大量出血', RF020: '电击伤', RF021: '溺水', RF022: '严重烧伤',
+  RF023: '一氧化碳中毒', RF024: '急性中毒', RF025: '自伤自杀风险',
+  RF026: '产后大出血', RF027: '子痫前期疑似', RF028: '新生儿黄疸急症',
+  RF029: '睾丸扭转疑似', RF030: '急性青光眼疑似', RF031: '化脓性脑膜炎疑似',
+  RF032: '恶性心律失常疑似', RF033: '肠套叠疑似', RF034: '严重鼻出血',
+  RF035: '后循环卒中疑似',
+};
+
+async function refresh() {
+  try {
+    const r = await fetch('/alerts');
+    const d = await r.json();
+    const list = $('list');
+    $('empty').style.display = d.count ? 'none' : 'block';
+    list.innerHTML = d.alerts.map(a => `
+      <div class="alert-card">
+        <div class="rules">⚠ ${a.risk_rules.map(x => RULE_NAMES[x] || x).join(' / ')}</div>
+        <div class="meta">
+          患者：${a.patient_id} ｜ 问诊：${a.session_id}<br>
+          trace：${a.trace_id}
+        </div>
+      </div>`).join('');
+  } catch (e) { /* 静默，下轮重试 */ }
+}
+const $ = id => document.getElementById(id);
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

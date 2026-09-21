@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医生工作站 - 草稿复核</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         background: #f4f6f8; color: #1a2b3c; font-size: 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px; }
+  h1 { font-size: 22px; color: #0b5fa5; margin-bottom: 16px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px;
+          box-shadow: 0 2px 8px rgba(11,95,165,.08); margin-bottom: 16px; }
+  .search { display: flex; gap: 10px; }
+  .search input { flex: 1; padding: 12px; font-size: 17px; border: 2px solid #b8cee0;
+                  border-radius: 8px; outline: none; }
+  .search input:focus { border-color: #0b5fa5; }
+  .search button { padding: 0 24px; font-size: 17px; background: #0b5fa5; color: #fff;
+                   border: none; border-radius: 8px; cursor: pointer; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 14px;
+           font-weight: 600; }
+  .badge.red { background: #fdecea; color: #c0392b; }
+  .badge.yellow { background: #fff8e1; color: #b28704; }
+  .badge.none { background: #eef3f7; color: #5a7a99; }
+  .badge.blocked { background: #eceff1; color: #607d8b; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eef2f6;
+           font-size: 15px; }
+  th { color: #5a7a99; font-weight: 600; width: 140px; }
+  #draft { white-space: pre-wrap; line-height: 1.7; font-size: 16px;
+           background: #f8fafc; border: 1px solid #dbe7f0; border-radius: 8px;
+           padding: 16px; }
+  .warn-note { color: #b28704; font-size: 14px; margin-top: 8px; }
+  .btn { padding: 14px 32px; font-size: 18px; background: #27ae60; color: #fff;
+         border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .btn:disabled { background: #a9d9bd; }
+  .ok-msg { color: #1e7d46; font-weight: 600; margin-top: 12px; }
+  .err { color: #c0392b; margin-top: 12px; }
+  textarea { width: 100%; margin-top: 12px; padding: 12px; font-size: 15px;
+             border: 2px solid #b8cee0; border-radius: 8px; height: 64px; resize: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>医生工作站 · 病历草稿复核</h1>
+
+  <div class="card">
+    <div class="search">
+      <input type="text" id="sid" placeholder="输入问诊编号（患者完成页可见）">
+      <button id="btnLoad">查看草稿</button>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="card hidden" id="panel">
+    <div id="meta"></div>
+    <table id="slots"></table>
+    <div style="margin-top:16px; font-weight:600">病历草稿（预问诊生成，A/P 段留待医师填写）</div>
+    <div id="draft" style="margin-top:8px"></div>
+    <div class="warn-note" id="warnNote"></div>
+    <textarea id="notes" placeholder="修改意见（留痕，可留空）"></textarea>
+    <button class="btn" id="btnConfirm">复核通过并采用</button>
+    <div class="ok-msg hidden" id="ok">✓ 已确认采用，问诊归档完成</div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let sid = null;
+
+$('err').textContent = '';
+$('btnLoad').onclick = async () => {
+  $('err').textContent = '';
+  sid = $('sid').value.trim();
+  if (!sid) return;
+  try {
+    const r = await fetch(`/sessions/${sid}/draft`);
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { $('err').textContent = d.detail || '查询失败'; return; }
+    render(d);
+  } catch (e) { $('err').textContent = e.message; }
+};
+
+function render(d) {
+  const lv = d.pipeline_ok ? d.risk_level : 'blocked';
+  const lvName = { red: '红色预警', yellow: '黄色预警', none: '常规',
+                   blocked: '管道阻断' }[lv];
+  $('meta').innerHTML =
+    `<span class="badge ${lv}">${lvName}</span>
+     <span style="margin-left:10px; color:#5a7a99; font-size:14px">
+       trace: ${d.trace_id}</span>
+     ${d.risk_rules.length ? `<span class="badge ${d.risk_level}" style="margin-left:8px">
+       命中: ${d.risk_rules.join(', ')}</span>` : ''}`;
+
+  const rows = Object.entries(d.slots || {})
+    .map(([k, v]) => `<tr><th>${k}</th><td>${v ?? '—'}</td></tr>`).join('');
+  $('slots').innerHTML = rows ? `<tr><th colspan="2" style="color:#0b5fa5">采集槽位</th></tr>${rows}` : '';
+
+  $('draft').textContent = d.draft || '（草稿为空：内容未通过安全校验）';
+  $('warnNote').textContent = d.pipeline_ok ? '' :
+    '⚠ 本草稿未通过安全校验（可能包含不当内容），请以面诊为准';
+  $('panel').classList.remove('hidden');
+}
+
+$('btnConfirm').onclick = async () => {
+  try {
+    const r = await fetch(`/sessions/${sid}/confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: $('notes').value.trim() }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { alert(d.detail || '确认失败'); return; }
+    $('btnConfirm').disabled = true;
+    $('ok').classList.remove('hidden');
+  } catch (e) { alert(e.message); }
+};
+</script>
+</body>
+</html>
