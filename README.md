@@ -44,6 +44,23 @@ python scripts/demo_e2e.py
 
 浏览器打开 `http://127.0.0.1:8000/` 即家庭端四屏 PWA（单文件、零外部依赖）。
 
+预警详情屏可「生成就诊一页纸」——`GET /api/home/summary/{pid}` 返回内联趋势图 + 异常化验表 + 命中规则的打印友好摘要，供家长带去急诊。
+
+## 彩排与发布门禁
+
+```bash
+# 赛前联网预跑一次：解析合成化验单并落 OCR 缓存（生成 data/demo/lab_report.png）
+python scripts/prime_offline_cache.py
+
+# 一键五道门禁（召回/OCR/红线/断网E2E/真实冒烟），任一 fail 退出码 1
+python scripts/run_all_gates.py
+
+# 真实脱敏样例到位后（本地 data/real_samples/，不入库）：字段准确率 ≥95%
+python -m evals.real_ocr_eval
+```
+
+现场操作与回退预案见 `docs/rehearsal-checklist.md`。
+
 - 设计规格：`docs/superpowers/specs/2026-09-21-rareguard-t04-design.md`
 - 实施计划：`docs/superpowers/plans/`
 - 规则取值文献：`docs/references.md`

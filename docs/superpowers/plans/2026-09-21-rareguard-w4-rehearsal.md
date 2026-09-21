@@ -578,18 +578,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 GATE_STEPS = [
     {"label": "w1-metrics", "requires_net": False,
-     "argv": [sys.executable, "-m", "synth.generate_dataset"]},
+     "argv": [sys.executable, "-m", "pytest",
+              "tests/test_gate_rareguard.py", "-q"]},
     {"label": "ocr-synthetic", "requires_net": False,
      "argv": [sys.executable, "-m", "pytest",
-              "tests/test_prime_offline_cache.py", "-q"]},
+              "tests/test_ocr_eval.py", "tests/test_prime_offline_cache.py",
+              "-q"]},
     {"label": "redline-gate", "requires_net": False,
      "argv": [sys.executable, "-m", "pytest", "tests/test_w2_gate.py", "-q"]},
     {"label": "offline-e2e", "requires_net": False,
      "argv": [sys.executable, "-m", "pytest",
-              "tests/test_e2e_home.py", "tests/test_home_summary.py", "-q"]},
+              "tests/test_e2e_home.py", "tests/test_home_summary.py",
+              "tests/test_offline_provider.py", "-q"]},
     {"label": "real-smoke", "requires_net": True,
      "argv": [sys.executable, "-m", "pytest", "-m", "real_api",
-              "tests/test_real_smoke.py", "-q"]},
+              "tests/test_real_smoke.py", "tests/test_real_provider_smoke.py",
+              "-q"]},
 ]
 
 
