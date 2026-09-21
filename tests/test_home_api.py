@@ -86,3 +86,59 @@ def test_risk_returns_level_and_narration(client):
     assert body["score"] > 0
     assert "医生诊断" in body["text"]  # 免责声明渲染层追加
     assert body["meta"]["source"] in ("llm", "template", "blocked")
+
+
+class BoomOCR(BaseLLMProvider):
+    name = "boom-ocr"
+
+    def chat(self, messages, tools=None):
+        raise RuntimeError("网络不可达")
+
+
+def test_upload_degrades_when_ocr_down(tmp_path):
+    store = Store(str(tmp_path / "boom.db"))
+    app = create_home_app(store, BoomOCR(), MockNarrate())
+    with TestClient(app) as c:
+        c.post("/api/home/patients",
+               json={"pid": "P99", "name": "小明", "dob": "2015-01-01"})
+        r = c.post("/api/home/labs/upload", json={
+            "pid": "P99", "date": "2026-03-01", "image_b64": "AAAA"})
+        assert r.status_code == 200
+        assert r.json() == {"items": [], "committed": 0,
+                            "ocr_error": "unavailable"}
+    store.close()
+
+
+def test_manual_lab_entry(client):
+    client.post("/api/home/patients",
+                json={"pid": "P99", "name": "小明", "dob": "2015-01-01"})
+    r = client.post("/api/home/labs/manual", json={
+        "pid": "P99", "date": "2026-03-01",
+        "items": [{"name": "血清铁蛋白", "value": 900, "unit": "ng/mL",
+                   "ref_low": 15, "ref_high": 150},
+                  {"name": "血糖", "value": 5.1, "unit": "mmol/L",
+                   "ref_low": 3.9, "ref_high": 6.1}]})
+    assert r.status_code == 200
+    results = r.json()["results"]
+    assert results[0]["code"] == "ferritin" and results[0]["ok"]
+    assert not results[1]["ok"]
+    rows = client.store.rows("SELECT code,value FROM lab WHERE pid='P99'")
+    assert rows == [("ferritin", 900)]
+
+
+def test_trend_points_match_risk(client):
+    client.post("/api/home/patients",
+                json={"pid": "P99", "name": "小明", "dob": "2015-01-01"})
+    client.post("/api/home/labs/upload", json={
+        "pid": "P99", "date": "2026-02-25", "image_b64": "AAAA"})
+    client.post("/api/home/labs/upload", json={
+        "pid": "P99", "date": "2026-03-01", "image_b64": "AAAA"})
+    r = client.get("/api/home/trend/P99?as_of=2026-03-01&days=3")
+    assert r.status_code == 200
+    points = r.json()["points"]
+    assert len(points) == 3
+    assert [p["date"] for p in points] == ["2026-02-27", "2026-02-28",
+                                           "2026-03-01"]
+    risk = client.get("/api/home/risk/P99?as_of=2026-03-01").json()
+    assert points[-1]["score"] == risk["score"]
+    assert points[-1]["level"] == risk["level"]
