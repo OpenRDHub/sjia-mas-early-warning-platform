@@ -29,6 +29,21 @@ python -m pytest -q            # 全量单测 + 评测门禁（real_api 标记�
 python -m synth.generate_dataset  # 重新生成合成评测集（seed=42 可复现）
 ```
 
+## 本地运行与演示
+
+```bash
+# 在线模式（.env 配置魔搭 OpenAI 兼容端点，密钥不入库）
+python -m rareguard.api.home_server
+
+# 断网演示模式：OCR 走预跑缓存，叙述回退确定性模板，规则引擎照常出分
+RAREGUARD_OFFLINE=1 python -m rareguard.api.home_server
+
+# 端到端演示脚本（零网络，输出建档→打卡→OCR→趋势→红色预警全链路 JSON）
+python scripts/demo_e2e.py
+```
+
+浏览器打开 `http://127.0.0.1:8000/` 即家庭端四屏 PWA（单文件、零外部依赖）。
+
 - 设计规格：`docs/superpowers/specs/2026-09-21-rareguard-t04-design.md`
 - 实施计划：`docs/superpowers/plans/`
 - 规则取值文献：`docs/references.md`
