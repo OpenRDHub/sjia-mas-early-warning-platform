@@ -17,7 +17,8 @@ class Store:
     """RareGuard 时序数据写入层（家庭端本地/院内单机部署）。"""
 
     def __init__(self, path: str):
-        self.conn = sqlite3.connect(path)
+        # FastAPI TestClient/uvicorn 在工作线程执行请求，需跨线程共享连接
+        self.conn = sqlite3.connect(path, check_same_thread=False)
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.executescript(_SCHEMA)
 
