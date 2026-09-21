@@ -114,6 +114,7 @@
   <section id="view-alert" style="display:none">
     <div class="card" id="alertText"><div class="hint">加载中…</div></div>
     <div class="card"><strong>规则命中明细</strong><div id="alertHits" class="hint">暂无</div></div>
+    <div class="card"><button class="btn" onclick="window.open('/api/home/summary/'+pid()+'?as_of='+today(),'_blank')">生成就诊一页纸（可打印带给医生）</button></div>
   </section>
 
   <footer>AI 辅助参考，请以医生诊断为准。本系统不做出诊断、不给用药方案。</footer>

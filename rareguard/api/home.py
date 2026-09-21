@@ -6,10 +6,12 @@ LLM 只在叙述层出现且强制过六层管道（narrate 内部保证）。
 from datetime import date, timedelta
 
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from rareguard.analysis.mas import assess_patient
 from rareguard.analysis.normalize import normalize
+from rareguard.api.summary import latest_labs, render_summary_html
 from rareguard.ingest.ocr import commit_confirmed, parse_dual
 from rareguard.narrate import narrate
 from rareguard.ts.provider import SqliteTimeSeries
@@ -107,5 +109,20 @@ def create_home_app(store, ocr_provider, narrate_provider) -> FastAPI:
                 "hits": [{"rule_id": h.rule_id, "name": h.name,
                           "level": h.level} for h in assessment.hits],
                 "text": text, "meta": meta}
+
+    @app.get("/api/home/summary/{pid}")
+    def summary(pid: str, as_of: str):
+        assessment = assess_patient(ts, pid, as_of)
+        prow = store.rows("SELECT name FROM patient WHERE pid=?", (pid,))
+        name = prow[0][0] if prow else pid
+        start = date.fromisoformat(as_of) - timedelta(days=89)
+        points = [{"date": (start + timedelta(days=o)).isoformat(),
+                   "score": assess_patient(ts, pid,
+                       (start + timedelta(days=o)).isoformat()).score}
+                  for o in range(90)]
+        return HTMLResponse(render_summary_html(
+            pid, name, as_of, assessment.level, assessment.score,
+            [{"name": h.name, "level": h.level} for h in assessment.hits],
+            points, latest_labs(store, pid, as_of)))
 
     return app
