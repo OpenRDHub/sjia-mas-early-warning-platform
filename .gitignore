@@ -2,5 +2,7 @@ _intro/
 .env
 *.db
 data/real_samples/
+data/ocr_cache/
+data/demo/
 __pycache__/
 .pytest_cache/
