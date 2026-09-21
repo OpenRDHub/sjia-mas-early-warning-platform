@@ -37,11 +37,21 @@ def eval_trend(series: dict) -> list:
     f = vals("ferritin")
     if _rising(f, 0.15, 400):
         hits.append(RuleHit("B2", "铁蛋白连续上升", "yellow", {"last": f[-1]}))
-    if len(f) >= 2 and f[0] > 0 and f[-1] / f[0] >= 2 and \
-            _days_between(series["ferritin"][0].date,
-                          series["ferritin"][-1].date) <= 14:
-        hits.append(RuleHit("B5", "铁蛋白14天内翻倍", "red",
-                            {"from": f[0], "to": f[-1]}))
+    pts = series.get("ferritin", [])
+    for j in range(len(pts)):
+        if pts[j].value < 400:
+            continue
+        for i in range(j):
+            if _days_between(pts[i].date, pts[j].date) <= 14 and \
+                    pts[i].value > 0 and pts[j].value / pts[i].value >= 2:
+                hits.append(RuleHit(
+                    "B5", "铁蛋白14天内翻倍", "red",
+                    {"from": pts[i].value, "to": pts[j].value,
+                     "date": pts[j].date}))
+                break
+        else:
+            continue
+        break
 
     p = vals("plt")
     if len(p) >= 3 and p[-1] < 150 and all(r <= 0.92 for r in _ratios(p[-3:])):
