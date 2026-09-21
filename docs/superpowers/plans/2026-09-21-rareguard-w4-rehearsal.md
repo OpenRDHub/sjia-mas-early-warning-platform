@@ -56,12 +56,16 @@ README.md                          # 任务4 修改：演示/断网/一页纸/�
 ```python
 # tests/test_prime_offline_cache.py
 import json
+import sys
 from pathlib import Path
 
-from rareguard.ingest.ocr import parse_lab_report
-from rareguard.llm.offline_provider import CachedOCR
-from rareguard.llm.provider import BaseLLMProvider, LLMResponse
-from scripts.prime_offline_cache import demo_lab_png_b64, prime_ocr_cache
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+
+from prime_offline_cache import demo_lab_png_b64, prime_ocr_cache  # noqa: E402
+
+from rareguard.ingest.ocr import parse_lab_report  # noqa: E402
+from rareguard.llm.offline_provider import CachedOCR  # noqa: E402
+from rareguard.llm.provider import BaseLLMProvider, LLMResponse  # noqa: E402
 
 
 class FixedOCR(BaseLLMProvider):
@@ -531,7 +535,12 @@ git -c user.name="qoder" -c user.email="qoder@local" commit -m "feat: 真实脱�
 
 ```python
 # tests/test_run_all_gates.py
-from scripts.run_all_gates import GATE_STEPS, run_all
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+
+from run_all_gates import GATE_STEPS  # noqa: E402
 
 
 def test_gate_plan_covers_five_gates():
