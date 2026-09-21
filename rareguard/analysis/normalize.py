@@ -18,6 +18,14 @@ ALIASES = {
     "谷丙转氨酶": "alt", "丙氨酸氨基转移酶": "alt", "alt": "alt",
     "甘油三酯": "tg", "tg": "tg",
     "体温": "temp", "temp": "temp",
+    # 英文全称（真实模型 OCR 常回英文项目名；查表前统一 lower()）
+    "serum ferritin": "ferritin",
+    "c-reactive protein": "crp",
+    "erythrocyte sedimentation rate": "esr",
+    "platelet count": "plt",
+    "fibrinogen": "fib",
+    "alanine aminotransferase": "alt",
+    "triglycerides": "tg", "triglyceride": "tg",
 }
 
 # code -> {归一化单位键: (乘系数, 加偏移)}；规范单位见各 code 第一项

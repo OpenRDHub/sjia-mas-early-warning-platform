@@ -86,6 +86,12 @@ class OpenAICompatProvider(BaseLLMProvider):
                 continue
             resp.raise_for_status()
             data = resp.json()
+            if not data.get("choices"):
+                # 部分模型（如 InternVL API-Inference）返回 choices:null——
+                # 显式抛错让上层降级（OCR→手工录入，叙述→模板），绝不静默
+                raise RuntimeError(
+                    f"LLM 返回空 choices（model={self.model}）: "
+                    f"{str(data)[:200]}")
             choice = data["choices"][0]["message"]
             usage = {
                 k: v for k, v in data.get("usage", {}).items()

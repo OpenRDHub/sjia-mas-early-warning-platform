@@ -31,3 +31,13 @@ def test_errors():
         normalize("血糖", 5, "mmol/L")
     with pytest.raises(UnitConversionError):
         normalize("铁蛋白", 5, "g/dL")
+
+
+def test_english_full_names():
+    assert normalize("Serum Ferritin", 1200, "ng/mL") == ("ferritin", 1200)
+    assert normalize("Platelet Count", 80, "10^9/L") == ("plt", 80)
+    assert normalize("Fibrinogen", 1.2, "g/L") == ("fib", 1.2)
+    assert normalize("C-Reactive Protein", 40, "mg/L") == ("crp", 40)
+    assert normalize("Erythrocyte Sedimentation Rate", 9, "mm/h") == ("esr", 9)
+    assert normalize("Alanine Aminotransferase", 95, "U/L") == ("alt", 95)
+    assert normalize("Triglycerides", 3.6, "mmol/L") == ("tg", 3.6)
