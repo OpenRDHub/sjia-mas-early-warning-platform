@@ -63,3 +63,14 @@ def test_served_app_offline_end_to_end(tmp_path):
         assert risk["meta"]["source"] == "template"
         assert "医生诊断" in risk["text"]
     store.close()
+
+
+def test_home_page_contains_four_screens(tmp_path):
+    store = Store(str(tmp_path / "p.db"))
+    app = create_served_app(store=store, offline=True)
+    with TestClient(app) as c:
+        html = c.get("/").text
+    for s in ("仪表盘", "拍照录入", "每日打卡", "预警详情", "请以医生诊断为准"):
+        assert s in html
+    assert "https://" not in html and "http://" not in html  # 零外部依赖
+    store.close()

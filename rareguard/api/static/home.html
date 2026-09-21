@@ -1,5 +1,317 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><title>RareGuard 家庭端</title></head>
-<body><p>RareGuard 家庭端（前端构建中）</p></body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RareGuard 守望 · 家庭端</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         background: #f0f4f8; color: #1a2b3c; font-size: 18px; padding-bottom: 84px; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 12px 16px; }
+  header { text-align: center; padding: 14px 0 6px; }
+  header h1 { font-size: 24px; color: #0b5fa5; }
+  header .sub { color: #5a7a99; font-size: 15px; margin-top: 4px; }
+  .card { background: #fff; border-radius: 14px; padding: 18px;
+          box-shadow: 0 2px 10px rgba(11,95,165,.08); margin-bottom: 14px; }
+  .btn { display: block; width: 100%; padding: 14px; font-size: 19px; border: none;
+         border-radius: 10px; background: #0b5fa5; color: #fff; cursor: pointer;
+         margin-top: 12px; font-weight: 600; }
+  .btn:disabled { background: #9db8cc; }
+  .btn.ghost { background: #e3eef7; color: #0b5fa5; }
+  input[type=text], input[type=date], input[type=number], input[type=file] {
+    width: 100%; padding: 12px; font-size: 18px; border: 2px solid #b8cee0;
+    border-radius: 10px; outline: none; margin-top: 8px; background: #fff; }
+  label { display: block; margin-top: 10px; font-weight: 600; }
+  .light { text-align: center; padding: 26px 12px; border-radius: 14px;
+           font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+  .light.green { background: #1e7d46; }
+  .light.yellow { background: #d48806; }
+  .light.red { background: #c0392b; }
+  .score { font-size: 16px; font-weight: 400; margin-top: 6px; opacity: .95; }
+  table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  th, td { padding: 8px 6px; border-bottom: 1px solid #e3edf5; text-align: left; }
+  th { color: #5a7a99; font-weight: 600; }
+  tr.review td { background: #fff7e0; }
+  tr.done td { color: #1e7d46; }
+  .symrow { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .symrow label { margin: 0; flex: 0 0 96px; font-weight: 500; }
+  .symrow input[type=range] { flex: 1; }
+  .streak { color: #0b5fa5; font-weight: 600; font-size: 16px; margin-top: 8px; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex;
+        background: #fff; border-top: 1px solid #d8e4ee; max-width: 680px;
+        margin: 0 auto; }
+  nav button { flex: 1; padding: 12px 0 14px; font-size: 16px; border: none;
+               background: none; color: #5a7a99; cursor: pointer; font-weight: 600; }
+  nav button.on { color: #0b5fa5; border-top: 3px solid #0b5fa5; }
+  footer { text-align: center; color: #8aa4bb; font-size: 14px; padding: 10px 0 90px; }
+  #mask { position: fixed; inset: 0; background: rgba(20,30,40,.65); display: none;
+          align-items: center; justify-content: center; z-index: 50; }
+  #modal { background: #fff; border-radius: 16px; max-width: 560px; width: 92%;
+           padding: 22px; border-top: 8px solid #c0392b; }
+  #modal h2 { color: #c0392b; font-size: 24px; margin-bottom: 10px; }
+  #modal ul { margin: 10px 0 0 22px; line-height: 1.8; }
+  .hint { color: #5a7a99; font-size: 15px; margin-top: 8px; }
+  .err { color: #c0392b; font-weight: 600; margin-top: 8px; }
+  svg text { fill: #5a7a99; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>RareGuard 守望</h1>
+    <div class="sub">SJA 患儿 MAS 并发症动态预警 · 家庭端</div>
+  </header>
+
+  <div class="card" id="patientCard">
+    <label>患儿档案</label>
+    <input type="text" id="pid" placeholder="患儿编号，如 P05">
+    <input type="text" id="pname" placeholder="称呼（选填）">
+    <button class="btn" onclick="ensurePatient()">建档 / 切换患儿</button>
+    <div class="hint" id="curPatient"></div>
+  </div>
+
+  <section id="view-dash">
+    <div id="lightBox"></div>
+    <div class="card">
+      <strong>90 天风险分趋势</strong>
+      <div id="trendChart" class="hint">建档并录入数据后自动绘制</div>
+    </div>
+    <div class="card"><strong>当前触发提示</strong><div id="hitsBox" class="hint">暂无</div></div>
+  </section>
+
+  <section id="view-upload" style="display:none">
+    <div class="card">
+      <strong>拍照 / 选择化验单</strong>
+      <input type="file" id="labFile" accept="image/*">
+      <label>化验日期</label>
+      <input type="date" id="labDate">
+      <button class="btn" onclick="uploadLab()">解析化验单</button>
+      <div id="ocrMsg" class="hint"></div>
+      <div id="itemsBox"></div>
+      <div id="manualBox" style="display:none">
+        <strong style="display:block;margin-top:14px">手工录入（OCR 不可用或未识别项）</strong>
+        <input type="text" id="mName" placeholder="项目名，如 血清铁蛋白">
+        <input type="number" id="mValue" placeholder="结果值" step="any">
+        <input type="text" id="mUnit" placeholder="单位，如 ng/mL">
+        <button class="btn ghost" onclick="manualAdd()">录入这一项</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-checkin" style="display:none">
+    <div class="card">
+      <strong>每日打卡（约 30 秒）</strong>
+      <label>日期</label><input type="date" id="ckDate">
+      <label>体温（℃）</label><input type="number" id="ckTemp" step="0.1" value="36.8">
+      <div id="syms"></div>
+      <button class="btn" onclick="submitCheckin()">提交今日打卡</button>
+      <div class="streak" id="streak"></div>
+      <div id="ckMsg" class="hint"></div>
+    </div>
+  </section>
+
+  <section id="view-alert" style="display:none">
+    <div class="card" id="alertText"><div class="hint">加载中…</div></div>
+    <div class="card"><strong>规则命中明细</strong><div id="alertHits" class="hint">暂无</div></div>
+  </section>
+
+  <footer>AI 辅助参考，请以医生诊断为准。本系统不做出诊断、不给用药方案。</footer>
+</div>
+
+<div id="mask">
+  <div id="modal">
+    <h2>红色预警：建议 24 小时内就诊</h2>
+    <p id="modalText"></p>
+    <strong style="display:block;margin-top:12px">急诊准备清单</strong>
+    <ul>
+      <li>近 7 天全部化验单原件或照片</li>
+      <li>当前用药记录（药名、规格、开始日期）</li>
+      <li>发热体温记录（本系统打卡截图即可）</li>
+      <li>医保卡、身份证、既往出院小结</li>
+      <li>口罩、免洗洗手液、少量饮水</li>
+    </ul>
+    <button class="btn" onclick="closeModal()">我知道了，尽快就诊</button>
+  </div>
+</div>
+
+<nav>
+  <button data-v="dash" class="on" onclick="go('dash')">仪表盘</button>
+  <button data-v="upload" onclick="go('upload')">拍照录入</button>
+  <button data-v="checkin" onclick="go('checkin')">每日打卡</button>
+  <button data-v="alert" onclick="go('alert')">预警详情</button>
+</nav>
+
+<script>
+const SYMPTOMS = ["发热","关节痛","皮疹","疲劳","出血点","腹痛","头痛","呕吐"];
+const LEVEL_CN = { green:"绿灯 · 平稳", yellow:"黄灯 · 需关注", red:"红灯 · 高危" };
+let lastRisk = null;
+
+function today() { return new Date().toISOString().slice(0, 10); }
+function pid() { return document.getElementById("pid").value.trim(); }
+async function j(url, opt) {
+  const r = await fetch(url, opt);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+function go(v) {
+  for (const s of ["dash","upload","checkin","alert"])
+    document.getElementById("view-" + s).style.display = s === v ? "" : "none";
+  document.querySelectorAll("nav button").forEach(b =>
+    b.classList.toggle("on", b.dataset.v === v));
+  if (v === "dash" || v === "alert") refreshRisk();
+}
+async function ensurePatient() {
+  if (!pid()) { alert("请填写患儿编号"); return; }
+  await j("/api/home/patients", { method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pid: pid(),
+      name: document.getElementById("pname").value || pid(),
+      dob: "2015-01-01" }) });
+  localStorage.setItem("rg_pid", pid());
+  document.getElementById("curPatient").textContent = "当前患儿：" + pid();
+  refreshRisk();
+}
+async function refreshRisk() {
+  if (!pid()) return;
+  try {
+    const risk = await j(`/api/home/risk/${pid()}?as_of=${today()}`);
+    lastRisk = risk;
+    document.getElementById("lightBox").innerHTML =
+      `<div class="light ${risk.level}">${LEVEL_CN[risk.level]}
+       <div class="score">MAS 风险分 ${risk.score} / 100</div></div>`;
+    const hits = risk.hits.map(h => `${h.name}（${h.level === "red" ? "高危" : "警戒"}）`);
+    document.getElementById("hitsBox").innerHTML =
+      hits.length ? hits.join("<br>") : "暂无触发项";
+    document.getElementById("alertText").innerHTML =
+      risk.text.replaceAll("\n", "<br>");
+    document.getElementById("alertHits").innerHTML = hits.length
+      ? "<table><tr><th>规则</th><th>提示</th><th>级别</th></tr>" +
+        risk.hits.map(h => `<tr><td>${h.rule_id}</td><td>${h.name}</td>
+         <td>${h.level}</td></tr>`).join("") + "</table>" : "暂无";
+    if (risk.level === "red") {
+      document.getElementById("modalText").innerHTML = risk.text;
+      document.getElementById("mask").style.display = "flex";
+    }
+    drawTrend();
+  } catch (e) { console.warn(e); }
+}
+function closeModal() { document.getElementById("mask").style.display = "none"; }
+async function drawTrend() {
+  const t = await j(`/api/home/trend/${pid()}?as_of=${today()}&days=90`);
+  const pts = t.points;
+  if (!pts.length) return;
+  const W = 600, H = 160, PAD = 28;
+  const max = Math.max(100, ...pts.map(p => p.score));
+  const xy = pts.map((p, i) => [
+    PAD + i * (W - 2 * PAD) / Math.max(1, pts.length - 1),
+    H - PAD - p.score / max * (H - 2 * PAD)]);
+  const line = xy.map(c => c[0].toFixed(1) + "," + c[1].toFixed(1)).join(" ");
+  const dots = xy.filter((c, i) => pts[i].level !== "green")
+    .map(c => `<circle cx="${c[0]}" cy="${c[1]}" r="4" fill="#c0392b"/>`).join("");
+  document.getElementById("trendChart").innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" width="100%">
+      <line x1="${PAD}" y1="${H - PAD}" x2="${W - PAD}" y2="${H - PAD}" stroke="#b8cee0"/>
+      <line x1="${PAD}" y1="${H - PAD - 40 / max * (H - 2 * PAD)}" x2="${W - PAD}"
+        y2="${H - PAD - 40 / max * (H - 2 * PAD)}" stroke="#d48806" stroke-dasharray="4"/>
+      <line x1="${PAD}" y1="${H - PAD - 70 / max * (H - 2 * PAD)}" x2="${W - PAD}"
+        y2="${H - PAD - 70 / max * (H - 2 * PAD)}" stroke="#c0392b" stroke-dasharray="4"/>
+      <text x="${PAD}" y="${H - PAD - 40 / max * (H - 2 * PAD) - 3}">黄线 40</text>
+      <text x="${PAD}" y="${H - PAD - 70 / max * (H - 2 * PAD) - 3}">红线 70</text>
+      <polyline points="${line}" fill="none" stroke="#0b5fa5" stroke-width="2.5"/>
+      ${dots}
+    </svg><div class="hint">虚线为黄/红预警阈值；红点为非绿灯日期</div>`;
+}
+async function uploadLab() {
+  const f = document.getElementById("labFile").files[0];
+  if (!f) { alert("请先选择化验单照片"); return; }
+  const b64 = (await new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(",")[1]);
+    r.readAsDataURL(f); }));
+  const date = document.getElementById("labDate").value || today();
+  const msg = document.getElementById("ocrMsg");
+  msg.textContent = "解析中…";
+  const body = await j("/api/home/labs/upload", { method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pid: pid(), date, image_b64: b64 }) });
+  document.getElementById("manualBox").style.display =
+    body.ocr_error || (body.items || []).some(i => i.needs_review) ? "" : "none";
+  if (body.ocr_error) { msg.textContent = "OCR 服务不可用，请使用下方手工录入。";
+    document.getElementById("itemsBox").innerHTML = ""; return; }
+  msg.textContent = `解析完成：${body.committed} 项已自动入库，黄色行为待核对项。`;
+  document.getElementById("itemsBox").innerHTML =
+    `<table><tr><th>项目</th><th>值</th><th>单位</th><th>状态</th></tr>` +
+    body.items.map((i, k) => `<tr class="${i.needs_review ? "review" : "done"}">
+      <td>${i.name}</td><td>${i.value ?? ""}</td><td>${i.unit ?? ""}</td>
+      <td>${i.needs_review
+        ? `<button class="btn ghost" style="width:auto;padding:6px 10px;margin:0"
+             onclick="confirmItem(${k})">核对入库</button>` : "已入库"}</td>
+    </tr>`).join("") + "</table>";
+  window._ocrItems = body.items;
+}
+async function confirmItem(k) {
+  const i = window._ocrItems[k];
+  await j("/api/home/labs/manual", { method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pid: pid(),
+      date: document.getElementById("labDate").value || today(),
+      items: [{ name: i.name, value: Number(i.value), unit: i.unit || "" }] }) });
+  i.needs_review = false;
+  uploadRefreshRow(k);
+}
+function uploadRefreshRow(k) {
+  document.getElementById("ocrMsg").textContent = "已确认入库。";
+  document.querySelectorAll("#itemsBox tr")[k + 1].className = "done";
+}
+async function manualAdd() {
+  const item = { name: document.getElementById("mName").value.trim(),
+    value: Number(document.getElementById("mValue").value),
+    unit: document.getElementById("mUnit").value.trim() };
+  if (!item.name) { alert("请填写项目名"); return; }
+  const r = await j("/api/home/labs/manual", { method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pid: pid(),
+      date: document.getElementById("labDate").value || today(), items: [item] }) });
+  const res = r.results[0];
+  alert(res.ok ? `已入库：${res.code}` : "未能识别该项目，请核对名称/单位");
+}
+function buildSymptoms() {
+  document.getElementById("syms").innerHTML = SYMPTOMS.map((s, i) =>
+    `<div class="symrow"><label><input type="checkbox" id="sym${i}"> ${s}</label>
+     <input type="range" min="0" max="10" value="3" id="vas${i}"></div>`).join("");
+}
+async function submitCheckin() {
+  const symptoms = {};
+  SYMPTOMS.forEach((s, i) => {
+    if (document.getElementById("sym" + i).checked)
+      symptoms[s] = Number(document.getElementById("vas" + i).value); });
+  const date = document.getElementById("ckDate").value || today();
+  await j("/api/home/checkin", { method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pid: pid(), date,
+      temp: Number(document.getElementById("ckTemp").value), symptoms }) });
+  bumpStreak(date);
+  document.getElementById("ckMsg").textContent = "今日打卡已保存，继续加油！";
+  refreshRisk();
+}
+function bumpStreak(date) {
+  const st = JSON.parse(localStorage.getItem("rg_streak") || '{"d":"","n":0}');
+  const y = new Date(Date.parse(date) - 864e5).toISOString().slice(0, 10);
+  st.n = st.d === date ? st.n : (st.d === y ? st.n + 1 : 1);
+  st.d = date;
+  localStorage.setItem("rg_streak", JSON.stringify(st));
+  document.getElementById("streak").textContent = `已连续打卡 ${st.n} 天`;
+}
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("labDate").value = today();
+  document.getElementById("ckDate").value = today();
+  buildSymptoms();
+  const saved = localStorage.getItem("rg_pid");
+  if (saved) { document.getElementById("pid").value = saved;
+    document.getElementById("curPatient").textContent = "当前患儿：" + saved;
+    refreshRisk(); }
+});
+</script>
+</body>
 </html>
