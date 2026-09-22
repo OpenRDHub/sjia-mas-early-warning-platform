@@ -72,5 +72,6 @@ def test_home_page_contains_four_screens(tmp_path):
         html = c.get("/").text
     for s in ("仪表盘", "拍照录入", "每日打卡", "预警详情", "请以医生诊断为准"):
         assert s in html
+    assert "URLSearchParams" in html  # ?pid= 深链：可分享/无头取证自动选中患儿
     assert "https://" not in html and "http://" not in html  # 零外部依赖
     store.close()

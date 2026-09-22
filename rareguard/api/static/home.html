@@ -308,9 +308,10 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("labDate").value = today();
   document.getElementById("ckDate").value = today();
   buildSymptoms();
-  const saved = localStorage.getItem("rg_pid");
-  if (saved) { document.getElementById("pid").value = saved;
-    document.getElementById("curPatient").textContent = "当前患儿：" + saved;
+  const q = new URLSearchParams(location.search);
+  const target = q.get("pid") || localStorage.getItem("rg_pid");
+  if (target) { document.getElementById("pid").value = target;
+    document.getElementById("curPatient").textContent = "当前患儿：" + target;
     refreshRisk(); }
 });
 </script>

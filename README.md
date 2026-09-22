@@ -40,11 +40,17 @@ RAREGUARD_OFFLINE=1 python -m rareguard.api.home_server
 
 # 端到端演示脚本（零网络，输出建档→打卡→OCR→趋势→红色预警全链路 JSON）
 python scripts/demo_e2e.py
+
+# 播种近三日「绿→黄→红」合成高危样例，供彩排与截图取证（数据不入库）
+python scripts/seed_demo_db.py data/demo/rareguard_demo.db
 ```
 
 浏览器打开 `http://127.0.0.1:8000/` 即家庭端四屏 PWA（单文件、零外部依赖）。
+带 `?pid=` 深链（如 `/?pid=PDEMO`）可自动选中患儿并直接呈现当前风险，便于分享与无头取证。
 
 预警详情屏可「生成就诊一页纸」——`GET /api/home/summary/{pid}` 返回内联趋势图 + 异常化验表 + 命中规则的打印友好摘要，供家长带去急诊。
+
+效果预览（由播种脚本 + 无头浏览器自动截取）：`docs/assets/01-red-alert.png`、`docs/assets/02-one-pager.png`。
 
 ## 彩排与发布门禁
 
