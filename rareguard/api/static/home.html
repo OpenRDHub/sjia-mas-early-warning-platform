@@ -74,6 +74,13 @@
   <section id="view-dash">
     <div id="lightBox"></div>
     <div class="card">
+      <label style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="earlyMode" onchange="toggleEarly()">
+        <span>早提示模式（2016 PRINTO 敏感档，更灵敏、更早提示）</span>
+      </label>
+      <div class="hint">默认关闭：采用 HLH-2004 严格档；开启后叠加 2016 分类判据，只升级不降级</div>
+    </div>
+    <div class="card">
       <strong>90 天风险分趋势</strong>
       <div id="trendChart" class="hint">建档并录入数据后自动绘制</div>
     </div>
@@ -114,7 +121,7 @@
   <section id="view-alert" style="display:none">
     <div class="card" id="alertText"><div class="hint">加载中…</div></div>
     <div class="card"><strong>规则命中明细</strong><div id="alertHits" class="hint">暂无</div></div>
-    <div class="card"><button class="btn" onclick="window.open('/api/home/summary/'+pid()+'?as_of='+today(),'_blank')">生成就诊一页纸（可打印带给医生）</button></div>
+    <div class="card"><button class="btn" onclick="window.open('/api/home/summary/'+pid()+'?as_of='+today()+profileQS(),'_blank')">生成就诊一页纸（可打印带给医生）</button></div>
   </section>
 
   <footer>AI 辅助参考，请以医生诊断为准。本系统不做出诊断、不给用药方案。</footer>
@@ -149,6 +156,15 @@ const LEVEL_CN = { green:"绿灯 · 平稳", yellow:"黄灯 · 需关注", red:"
 let lastRisk = null;
 
 function today() { return new Date().toISOString().slice(0, 10); }
+function profileQS() {
+  const el = document.getElementById("earlyMode");
+  return el && el.checked ? "&profile=early" : "";
+}
+function toggleEarly() {
+  const el = document.getElementById("earlyMode");
+  localStorage.setItem("rg_early", el && el.checked ? "1" : "0");
+  refreshRisk();
+}
 function pid() { return document.getElementById("pid").value.trim(); }
 async function j(url, opt) {
   const r = await fetch(url, opt);
@@ -176,7 +192,7 @@ async function ensurePatient() {
 async function refreshRisk() {
   if (!pid()) return;
   try {
-    const risk = await j(`/api/home/risk/${pid()}?as_of=${today()}`);
+    const risk = await j(`/api/home/risk/${pid()}?as_of=${today()}${profileQS()}`);
     lastRisk = risk;
     document.getElementById("lightBox").innerHTML =
       `<div class="light ${risk.level}">${LEVEL_CN[risk.level]}
@@ -199,7 +215,7 @@ async function refreshRisk() {
 }
 function closeModal() { document.getElementById("mask").style.display = "none"; }
 async function drawTrend() {
-  const t = await j(`/api/home/trend/${pid()}?as_of=${today()}&days=90`);
+  const t = await j(`/api/home/trend/${pid()}?as_of=${today()}&days=90${profileQS()}`);
   const pts = t.points;
   if (!pts.length) return;
   const W = 600, H = 160, PAD = 28;
@@ -309,6 +325,8 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("ckDate").value = today();
   buildSymptoms();
   const q = new URLSearchParams(location.search);
+  document.getElementById("earlyMode").checked =
+    q.get("profile") === "early" || localStorage.getItem("rg_early") === "1";
   const target = q.get("pid") || localStorage.getItem("rg_pid");
   if (target) { document.getElementById("pid").value = target;
     document.getElementById("curPatient").textContent = "当前患儿：" + target;
