@@ -1,6 +1,8 @@
 _intro/
 .env
 *.db
+*.db-wal
+*.db-shm
 audit_log.jsonl
 data/real_samples/
 data/ocr_cache/
