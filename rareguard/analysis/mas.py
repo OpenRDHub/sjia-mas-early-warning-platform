@@ -2,7 +2,7 @@
 确定性规则，禁止 import 任何 LLM 模块（产品红线）。"""
 from dataclasses import dataclass
 
-from rareguard.analysis.rules import eval_absolute
+from rareguard.analysis.rules import eval_absolute, eval_2016
 from rareguard.analysis.trends import eval_trend
 
 
@@ -43,13 +43,21 @@ def mas_score(series: dict, checkins: list) -> tuple:
     return round(sum(detail.values()), 2), detail
 
 
-def assess_patient(ts, pid: str, as_of: str) -> Assessment:
+def assess_patient(ts, pid: str, as_of: str,
+                   profile: str = "standard", min_criteria: int = 2) -> Assessment:
     codes = ts.codes(pid)
     series = {c: ts.get_lab_series(pid, c, until=as_of) for c in codes}
     checkins = ts.get_checkins(pid, until=as_of)
-    hits = tuple(eval_absolute(series, checkins) + eval_trend(series))
+    hits = list(eval_absolute(series, checkins) + eval_trend(series))
     score, _ = mas_score(series, checkins)
     reds = sum(1 for h in hits if h.level == "red")
     level = ("red" if score >= 70 or reds >= 2
              else "yellow" if score >= 40 or hits else "green")
-    return Assessment(level=level, score=score, hits=hits)
+    if profile == "early":
+        m16 = eval_2016(series, checkins, min_criteria=min_criteria)
+        hits += m16
+        if any(h.level == "red" for h in m16):
+            level = "red"
+        elif any(h.level == "yellow" for h in m16) and level == "green":
+            level = "yellow"
+    return Assessment(level=level, score=score, hits=tuple(hits))
