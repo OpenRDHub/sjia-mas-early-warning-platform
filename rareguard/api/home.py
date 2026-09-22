@@ -91,18 +91,22 @@ def create_home_app(store, ocr_provider, narrate_provider) -> FastAPI:
         return {"results": results}
 
     @app.get("/api/home/trend/{pid}")
-    def trend(pid: str, as_of: str, days: int = 90):
+    def trend(pid: str, as_of: str, days: int = 90,
+              profile: str = "standard", min_criteria: int = 2):
         start = date.fromisoformat(as_of) - timedelta(days=days - 1)
         points = []
         for offset in range(days):
             day = (start + timedelta(days=offset)).isoformat()
-            a = assess_patient(ts, pid, day)
+            a = assess_patient(ts, pid, day, profile=profile,
+                               min_criteria=min_criteria)
             points.append({"date": day, "score": a.score, "level": a.level})
         return {"points": points}
 
     @app.get("/api/home/risk/{pid}")
-    def risk(pid: str, as_of: str):
-        assessment = assess_patient(ts, pid, as_of)
+    def risk(pid: str, as_of: str,
+             profile: str = "standard", min_criteria: int = 2):
+        assessment = assess_patient(ts, pid, as_of, profile=profile,
+                                    min_criteria=min_criteria)
         text, meta = narrate(assessment, narrate_provider,
                              trace_id=f"home-{pid}-{as_of}")
         return {"level": assessment.level, "score": assessment.score,
@@ -111,14 +115,17 @@ def create_home_app(store, ocr_provider, narrate_provider) -> FastAPI:
                 "text": text, "meta": meta}
 
     @app.get("/api/home/summary/{pid}")
-    def summary(pid: str, as_of: str):
-        assessment = assess_patient(ts, pid, as_of)
+    def summary(pid: str, as_of: str,
+                profile: str = "standard", min_criteria: int = 2):
+        assessment = assess_patient(ts, pid, as_of, profile=profile,
+                                    min_criteria=min_criteria)
         prow = store.rows("SELECT name FROM patient WHERE pid=?", (pid,))
         name = prow[0][0] if prow else pid
         start = date.fromisoformat(as_of) - timedelta(days=89)
         points = [{"date": (start + timedelta(days=o)).isoformat(),
                    "score": assess_patient(ts, pid,
-                       (start + timedelta(days=o)).isoformat()).score}
+                       (start + timedelta(days=o)).isoformat(), profile=profile,
+                       min_criteria=min_criteria).score}
                   for o in range(90)]
         return HTMLResponse(render_summary_html(
             pid, name, as_of, assessment.level, assessment.score,
