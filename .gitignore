@@ -9,3 +9,4 @@ data/ocr_cache/
 data/demo/
 __pycache__/
 .pytest_cache/
+/*.docx
