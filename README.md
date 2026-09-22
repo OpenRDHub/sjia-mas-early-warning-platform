@@ -39,6 +39,10 @@
 
 待开发；参考文献：《儿童风湿病学》第 8 版、sJIA 合并 MAS 诊疗专家共识（2022 / 2025 版）、sJIA 诊疗中国专家共识（2023 版）。
 
+## 🚀 赛手作品：RareGuard（守望）
+
+「罕见·无界」黑客松赛手 yigenfeng0707-netizen 提交的可用实现（规则引擎 + OCR 录入 + 家属端 Web + 离线演示），技术方案见 [docs/rareguard-platform.md](docs/rareguard-platform.md)，产品方案见 [docs/product-proposal.md](docs/product-proposal.md)。
+
 ## 🤝 如何参与
 
 适合风湿免疫临床背景的朋友（指标权重与预警逻辑把关）、数据建模 / 全栈开发、患儿家长（真实使用场景与指标记录习惯）。
