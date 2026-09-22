@@ -59,7 +59,7 @@ python scripts/run_all_gates.py
 python -m evals.real_ocr_eval
 ```
 
-现场操作与回退预案见 `docs/rehearsal-checklist.md`。
+现场操作与回退预案见 `docs/rehearsal-checklist.md`，10 分钟路演分镜见 `docs/roadshow-storyboard.md`。
 
 - 设计规格：`docs/superpowers/specs/2026-09-21-rareguard-t04-design.md`
 - 实施计划：`docs/superpowers/plans/`
