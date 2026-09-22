@@ -44,6 +44,8 @@ RAREGUARD_OFFLINE=1 python -m rareguard.api.home_server
 
 演示话术锚点：「断网了，预警照样出——因为风险分 100% 来自规则引擎，AI 只负责把结论翻译成家长看得懂的话。」
 
+收尾与答辩话术（共创 + 合规）见 `docs/roadshow-storyboard.md` §收尾与孵化；展开依据见 `docs/patient-cocreation-interview-guide.md`、`docs/compliance-deployment-onepager.md`。
+
 ## 3. 回退预案（现场故障处置）
 
 | 现象 | 处置 |
@@ -64,4 +66,4 @@ python -m evals.real_ocr_eval
 
 ## 5. 患者共创迭代记录（现场用）
 
-路演后收集 SJA 家长/风湿科医师反馈 → 规则取值调整须在 `docs/references.md` 登记文献出处 → 重跑 `run_all_gates.py` 确认指标不回退。
+访谈与可用性走查方法见 `docs/patient-cocreation-interview-guide.md`（招募/知情同意/问题清单/记录模板）。路演后收集 SJA 家长/风湿科医师反馈 → 规则取值调整须在 `docs/references.md` 登记文献出处 → 重跑 `run_all_gates.py` 确认指标不回退。
