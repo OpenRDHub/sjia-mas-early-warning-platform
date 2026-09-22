@@ -51,6 +51,7 @@ RAREGUARD_OFFLINE=1 python -m rareguard.api.home_server
 | OCR 缓存 miss（换了图/删了缓存） | 拍照录入屏自动转手工录入：铁蛋白 1200 ng/mL、血小板 80 ×10⁹/L、纤维蛋白原 1.2 g/L 三项手动录 |
 | 叙述文案不像话/被 L4 拦截 | 自动回退确定性模板（`source=template`），预警照常出，不影响演示 |
 | 魔搭限流/密钥失效 | 全程 `RAREGUARD_OFFLINE=1`，不依赖任何外部服务 |
+| 端口 8000 被占用（连不上/无响应） | 换端口起：`python -m uvicorn rareguard.api.home_server:create_served_app --factory --host 127.0.0.1 --port 8010`，浏览器开 `http://127.0.0.1:8010`；`netstat -ano \| grep :8000` 查占用 |
 | 页面空白 | `node --check` 抽出的 `<script>` 排错；确认未改内联 SVG 模板字符串 |
 
 ## 4. 真实脱敏样例到位后（可选，赛后迭代）
