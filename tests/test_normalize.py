@@ -33,6 +33,13 @@ def test_errors():
         normalize("铁蛋白", 5, "g/dL")
 
 
+def test_ast_aliases_and_units():
+    assert normalize("谷草转氨酶", 60, "U/L") == ("ast", 60)
+    assert normalize("天门冬氨酸氨基转移酶", 60, "IU/L") == ("ast", 60)
+    assert normalize("AST", 60, "U/L") == ("ast", 60)
+    assert normalize("Aspartate Aminotransferase", 60, "U/L") == ("ast", 60)
+
+
 def test_english_full_names():
     assert normalize("Serum Ferritin", 1200, "ng/mL") == ("ferritin", 1200)
     assert normalize("Platelet Count", 80, "10^9/L") == ("plt", 80)

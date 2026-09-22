@@ -16,6 +16,7 @@ ALIASES = {
     "血小板": "plt", "血小板计数": "plt", "plt": "plt",
     "纤维蛋白原": "fib", "fib": "fib",
     "谷丙转氨酶": "alt", "丙氨酸氨基转移酶": "alt", "alt": "alt",
+    "谷草转氨酶": "ast", "天门冬氨酸氨基转移酶": "ast", "ast": "ast",
     "甘油三酯": "tg", "tg": "tg",
     "体温": "temp", "temp": "temp",
     # 英文全称（真实模型 OCR 常回英文项目名；查表前统一 lower()）
@@ -25,6 +26,7 @@ ALIASES = {
     "platelet count": "plt",
     "fibrinogen": "fib",
     "alanine aminotransferase": "alt",
+    "aspartate aminotransferase": "ast",
     "triglycerides": "tg", "triglyceride": "tg",
 }
 
@@ -36,6 +38,7 @@ UNITS: dict[str, dict[str, tuple[float, float]]] = {
     "plt": {"10^9/l": (1, 0), "g/l": (1, 0), "×10⁹/l": (1, 0)},
     "fib": {"g/l": (1, 0), "mg/l": (0.001, 0), "mg/dl": (0.01, 0)},
     "alt": {"u/l": (1, 0), "iu/l": (1, 0)},
+    "ast": {"u/l": (1, 0), "iu/l": (1, 0)},
     "tg": {"mmol/l": (1, 0), "mg/dl": (1 / 88.57, 0)},
     "temp": {"℃": (1, 0), "c": (1, 0), "°f": (1 / 1.8, -32 / 1.8)},
 }
