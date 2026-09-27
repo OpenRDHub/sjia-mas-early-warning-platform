@@ -39,6 +39,8 @@ class Violating(Echo):
 def test_narrate_llm_ok():
     text, meta = narrate(a_red(), Echo(), trace_id="t1")
     assert meta["source"] == "llm" and "医生诊断" in text
+    assert meta["autonomy_level"] == "L1"
+    assert meta["decision_owner"] == "rules_engine"
 
 
 def test_narrate_guard_blocks_diagnosis():

@@ -1,6 +1,7 @@
 """家庭叙述层：LLM 仅把规则结论翻译为家长可读表达，输出强制过六层管道。
 
 任何失败路径都回退到确定性模板（fail-safe 到模板，绝不 fail-open 到模型原文）。
+产品定位为 L1 辅助预警：判险主权在规则引擎，本模块不参与红/黄/绿判定。
 """
 import json
 
@@ -9,6 +10,9 @@ from rareguard.verification.pipeline import run_verification_pipeline
 NARRATE_SYSTEM = "N9 家庭叙述"
 
 _DISCLAIMER = "AI 辅助参考，请以医生诊断为准。"
+
+# 自主性光谱字段（只声明边界，不改判险逻辑；见 README「L1 辅助预警」）
+_L1_META = {"autonomy_level": "L1", "decision_owner": "rules_engine"}
 
 # 免责声明由渲染层追加，绝不让模型生成——否则 L4 护栏会把
 # "以医生诊断为准"误判为确诊句式（见基座 R3：护栏与模型解耦）。
@@ -52,12 +56,14 @@ def narrate(assessment, provider, trace_id: str = "") -> tuple:
             {"role": "user", "content": evidence},
         ])
     except Exception:
-        return template_text(assessment), {"source": "template", "ok": True}
+        return template_text(assessment), {"source": "template", "ok": True,
+                                           **_L1_META}
     result = run_verification_pipeline(
         evidence, resp.text, trace_id, fact_context=evidence)
     if not result.ok:
-        return template_text(assessment), {"source": "blocked", "ok": True}
+        return template_text(assessment), {"source": "blocked", "ok": True,
+                                           **_L1_META}
     text = result.text
     if _DISCLAIMER not in text:
         text = f"{text}{_DISCLAIMER}"
-    return text, {"source": "llm", "ok": True}
+    return text, {"source": "llm", "ok": True, **_L1_META}

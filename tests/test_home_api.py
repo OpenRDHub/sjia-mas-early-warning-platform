@@ -86,6 +86,10 @@ def test_risk_returns_level_and_narration(client):
     assert body["score"] > 0
     assert "医生诊断" in body["text"]  # 免责声明渲染层追加
     assert body["meta"]["source"] in ("llm", "template", "blocked")
+    assert body["autonomy_level"] == "L1"
+    assert body["decision_owner"] == "rules_engine"
+    assert body["meta"]["autonomy_level"] == "L1"
+    assert body["meta"]["decision_owner"] == "rules_engine"
 
 
 class BoomOCR(BaseLLMProvider):

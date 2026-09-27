@@ -1,5 +1,8 @@
-"""合成 SJA 患儿时序数据（同时充当评测集）。取值依据见 docs/references.md。
-运行 `python -m synth.generate_dataset` 重新生成（seed=42 完全可复现）。"""
+"""合成 SJA 患儿时序数据（同时充当长尾留出 / 罕见表型回归金标）。
+
+含 MAS 前驱轨迹与正常对照；供 evals/gate_rareguard 与发布门禁消费。
+取值依据见 docs/references.md。运行 `python -m synth.generate_dataset`（seed=42 完全可复现）。
+"""
 import datetime as dt
 import random
 

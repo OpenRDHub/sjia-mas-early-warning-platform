@@ -21,6 +21,17 @@ SQLite/PG 时序库（TimeSeriesProvider 只读抽象）
 六层校验管道（复用医疗级验证架构）→ 红/黄/绿分级预警 + WORM 审计
 ```
 
+## 自主性定位：L1 辅助预警（非 L3）
+
+本系统按医学智能体光谱刻意定位为 **L1 辅助预警**：
+
+- **规则主权**：红/黄/绿与 MAS 风险分仅由确定性规则引擎给出（`decision_owner: rules_engine`）；接口 meta 亦声明 `autonomy_level: "L1"`。
+- **LLM 仅叙述**：大模型只把结构化结论改写成家长可读文案，并强制过六层校验；**不接入 analysis/risk 判险路径**。
+- **对抗「罕见表型被通用模型抹除」**：用可审计规则 + 长尾/MAS 前驱留出回归门禁，避免把罕见病早期信号交给通用 LLM 凭语感抹平。
+- **明确不做**：不做 L3 独立坐诊；不做权重级自我进化（在线改规则/改模型权重）；不做 FHIR/DICOM 全量互通。
+
+上述口径借用临床自我进化系统综述（arXiv:2607.11175，Zhu et al.）中的自主性光谱作**产品定位解读**，并非声称已实现该文的自我进化或 L3 架构。
+
 ## 开发复现
 
 ```bash
@@ -52,7 +63,15 @@ python scripts/seed_demo_db.py data/demo/rareguard_demo.db
 
 效果预览（由播种脚本 + 无头浏览器自动截取）：`docs/assets/01-red-alert.png`、`docs/assets/02-one-pager.png`。
 
-## 彩排与发布门禁
+## 彩排与发布门禁（长尾留出 / 罕见表型回归）
+
+评测不是「再跑一遍快乐路径」，而是把 **MAS 前驱等长尾表型留出**，用确定性指标阻断发布——门禁失败 = 不得交付：
+
+| 角色 | 路径 | 作用 |
+|---|---|---|
+| 合成留出集 | `synth/generate_dataset.py` | seed=42 可复现；含 MAS 前驱轨迹 + 正常对照，充当罕见表型回归金标 |
+| W1 指标门禁 | `evals/gate_rareguard.py` | 召回 100% / 提前量 ≥48h / 误报 ≤1 次·患者·月；不达标即阻断 |
+| 一键编排 | `scripts/run_all_gates.py` | 召回/OCR/红线/断网 E2E/真实冒烟；任一 fail 退出码 1 |
 
 ```bash
 # 赛前联网预跑一次：解析合成化验单并落 OCR 缓存（生成 data/demo/lab_report.png）
