@@ -2,7 +2,7 @@
 
 本模块是仅有的 HTTP 装配层；风险结论仍由确定性规则引擎给出，
 LLM 只在叙述层出现且强制过六层管道（narrate 内部保证）。
-自主性定位 L1：risk 响应附带 autonomy_level / decision_owner 字段级声明，不改判险。
+自主性定位 L1（光谱 / 响应 meta）：risk 附带 autonomy_level / decision_owner，不改判险。
 """
 from datetime import date, timedelta
 

@@ -76,8 +76,9 @@
     <div class="card">
       <label style="display:flex;align-items:center;gap:8px">
         <input type="checkbox" id="earlyMode" onchange="toggleEarly()">
-        <span>早提示模式（2016 PRINTO 敏感档，更灵敏、更早提示）</span>
+        <span>早提示开关（勾选才叠加 2016 PRINTO 敏感档）</span>
       </label>
+      <div class="hint" id="profileHint">当前档位：HLH-2004 严格档（未开早提示，不是 PRINTO）</div>
       <div class="hint">默认关闭：采用 HLH-2004 严格档；开启后叠加 2016 分类判据，只升级不降级</div>
     </div>
     <div class="card">
@@ -160,9 +161,20 @@ function profileQS() {
   const el = document.getElementById("earlyMode");
   return el && el.checked ? "&profile=early" : "";
 }
+function profileHintText() {
+  const on = document.getElementById("earlyMode").checked;
+  return on
+    ? "当前档位：2016 PRINTO 敏感档（只升不降）"
+    : "当前档位：HLH-2004 严格档（未开早提示，不是 PRINTO）";
+}
+function syncProfileHint() {
+  const el = document.getElementById("profileHint");
+  if (el) el.textContent = profileHintText();
+}
 function toggleEarly() {
   const el = document.getElementById("earlyMode");
   localStorage.setItem("rg_early", el && el.checked ? "1" : "0");
+  syncProfileHint();
   refreshRisk();
 }
 function pid() { return document.getElementById("pid").value.trim(); }
@@ -196,7 +208,7 @@ async function refreshRisk() {
     lastRisk = risk;
     document.getElementById("lightBox").innerHTML =
       `<div class="light ${risk.level}">${LEVEL_CN[risk.level]}
-       <div class="score">MAS 风险分 ${risk.score} / 100</div></div>`;
+       <div class="score">MAS 风险分 ${risk.score} / 100 · ${profileHintText()}</div></div>`;
     const hits = risk.hits.map(h => `${h.name}（${h.level === "red" ? "高危" : "警戒"}）`);
     document.getElementById("hitsBox").innerHTML =
       hits.length ? hits.join("<br>") : "暂无触发项";
@@ -327,6 +339,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const q = new URLSearchParams(location.search);
   document.getElementById("earlyMode").checked =
     q.get("profile") === "early" || localStorage.getItem("rg_early") === "1";
+  syncProfileHint();
   const target = q.get("pid") || localStorage.getItem("rg_pid");
   if (target) { document.getElementById("pid").value = target;
     document.getElementById("curPatient").textContent = "当前患儿：" + target;

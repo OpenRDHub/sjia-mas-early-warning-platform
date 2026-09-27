@@ -1,8 +1,7 @@
-"""FastAPI 服务层（§4.3 接口契约）：患者端 / 医生端 / 护士站端点。
+"""基座遗留：门诊预问诊 FastAPI（患者/医生/护士）。
 
-P0a：内存存储 + Mock Provider，本机/内网开发用；
-P0b：认证/限流 + 持久化 + 真实 Provider——仅改依赖注入点（换模型不改护栏）。
-患者端与医生端路径分离，RBAC 在 P0b 接入。
+**非参赛主路径。** 赛题 04 演示请用 `python -m rareguard.api.home_server`（家庭端）。
+本模块与 orchestrator 保留供赛后同源复用，不删除。
 """
 
 from pathlib import Path
@@ -23,7 +22,11 @@ from rareguard.orchestrator.graph import (
 )
 from rareguard.orchestrator.state import InvalidTransition, SessionStatus
 
-app = FastAPI(title="辅助问诊服务", version="0.1.0")
+app = FastAPI(
+    title="基座遗留：智能预问诊（非参赛主路径）",
+    version="0.1.0",
+    description="RareGuard 赛题演示请启动 rareguard.api.home_server。本服务为辅助医疗基座预问诊，非家庭端预警。",
+)
 store = create_store()  # MEDASSIST_STORE=sqlite 切持久化（中断续答）
 
 # 依赖注入点：接真实模型只改这里
@@ -74,7 +77,7 @@ def consent(sid: str):
 
 @app.post("/sessions/{sid}/messages")
 def send_message(sid: str, req: MessageReq):
-    """患者一轮输入：L1 净化 → N4 风险旁路 → N1 采集；红色直推护士站。"""
+    """患者一轮输入：V1/input_guard 净化 → N4 风险旁路 → N1 采集；红色直推护士站。"""
     s = store.get(sid)
     if not s:
         raise HTTPException(404, "会话不存在")

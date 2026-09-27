@@ -8,12 +8,14 @@
 python scripts/run_all_gates.py
 ```
 
+**合成留出是回归门禁，不是临床金标。** 召回/提前量来自合成集 **N=6**，不是真实患儿验证。
+
 期望输出五道门禁全 `pass`（未配魔搭密钥时 `real-smoke` 记 `skip`）：
 
 | 门禁 | 命令映射 | 阈值 |
 |---|---|---|
-| w1-metrics | `tests/test_gate_rareguard.py` | 召回 1.0 / 提前 ≥48h / 误报 ≤1 |
-| ocr-synthetic | `tests/test_ocr_eval.py` + `test_prime_offline_cache.py` | 字段 ≥98%（合成） |
+| w1-metrics | `tests/test_gate_rareguard.py` | 召回 1.0 / 提前 ≥48h / 误报 ≤1（合成 N=6） |
+| ocr-synthetic | `tests/test_ocr_eval.py` + `test_prime_offline_cache.py` | 字段 ≥98%（**仅合成化验单**，禁止说成已对真实患儿验证） |
 | redline-gate | `tests/test_w2_gate.py` | 红线违规 0 |
 | offline-e2e | `tests/test_e2e_home.py` + `test_home_summary.py` + `test_offline_provider.py` | 断网全链路绿 |
 | real-smoke | `pytest -m real_api tests/test_real_smoke.py ...` | 真实模型协议+护栏成立 |
@@ -41,6 +43,8 @@ RAREGUARD_OFFLINE=1 python -m rareguard.api.home_server
 2. **拍照录入**：上传 `data/demo/lab_report.png` → **命中 OCR 缓存**、双通道一致 → 三项直接入库（铁蛋白 1200 / 血小板 80 / 纤维蛋白原 1.2）。
 3. **每日打卡**：连续 3 天高热（≥38.5）+ 症状 → 风险分爬升。
 4. **预警详情**：转红 → 强弹窗 + 急诊准备清单 → 点「生成就诊一页纸（可打印带给医生）」→ 新标签页趋势/异常表/免责声明齐全 → Ctrl+P 打印。
+
+仪表盘确认评委能看见**当前档位**（默认「HLH-2004 严格档」；勾选早提示后才是「2016 PRINTO 敏感档，只升不降」）。未开开关不要把严格档叫 PRINTO。
 
 演示话术锚点：「断网了，预警照样出——因为风险分 100% 来自规则引擎，AI 只负责把结论翻译成家长看得懂的话。」
 
@@ -83,12 +87,12 @@ python -m evals.real_ocr_eval
   - [ ] 你：按提纲做访谈与四屏可用性走查（可录屏）。
   - [ ] 我：汇总反馈表 → 把 P0/P1 意见落到文案/打卡项/阈值，`references.md` 登记取值出处 → 重跑门禁确保不回退。
 - [ ] **P3 回填真实数字（10-10 ~ 10-13）**
-  - [ ] 我：把访谈人数、真实样例 OCR 准确率回填 `docs/roadshow-storyboard.md` 的 `__` 占位，更新 README 证据段。
+  - [ ] 我：仅在访谈/样例**实际完成**后回填人数与真实 OCR；未完成保持进行时，禁止填假人数。
   - [ ] 我：跑含 real-smoke 的 `run_all_gates.py` 全绿。
 - [ ] **T-1（10-14）**：联网预跑 + 断网四屏走查（本手册 §1–§2）。
 - [ ] **现场（10-15 ~ 10-17）**：演示 + 用 §收尾话术答"共创/合规"两问。
 
-**降级底线**：若 P1 样例或 P2 访谈未及完成——路演用进行时表述（"联盟转介中、访谈提纲与知情同意已就绪"），技术硬核赛道不受影响，切勿谎报已完成。
+**降级底线**：若样例或访谈未及完成——路演用进行时（"联盟转介中、访谈提纲与知情同意已就绪"），技术硬核赛道不受影响；**切勿谎报已完成人数，切勿把合成 OCR≥98% / 合成召回 100% 说成已对真实患儿验证。**
 
 ### 附录 A：真实样例标注模板（`data/real_samples/xxx.json`，与同名 `.png` 配对）
 ```json

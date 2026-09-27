@@ -1,6 +1,6 @@
 """W1 评测门禁：MAS 召回 100% / 提前量 ≥48h / 误报 ≤1 次·患者·月。
 
-角色：对合成留出集（synth/generate_dataset）做长尾 / MAS 前驱罕见表型回归；
+角色：对合成留出集（synth/generate_dataset，N=6）做长尾 / MAS 前驱罕见表型回归（回归门禁，不是临床金标）；
 门禁失败 = 发布阻断（调规则参数须在 docs/references.md 登记依据，禁改测试与阈值凑绿）。
 """
 import datetime as dt

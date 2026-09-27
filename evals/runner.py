@@ -87,7 +87,7 @@ def run_redflag_cases(cases: list[dict]) -> EvalReport:
 
 
 def run_injection_cases(cases: list[dict]) -> EvalReport:
-    """对抗注入：L1 必须拦截（§7.2：拦截率门禁）。"""
+    """对抗注入：V1/input_guard 必须拦截（§7.2：拦截率门禁）。"""
     report = EvalReport(category="injection")
     for c in cases:
         v = check_input(c["text"])
