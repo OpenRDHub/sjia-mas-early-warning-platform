@@ -1,0 +1,13 @@
+[project]
+name = "rareguard"
+version = "0.1.0"
+description = "RareGuard - SJA/MAS home alert platform (hackathon 赛题04)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "evals"]
+pythonpath = ["."]
+addopts = "-m 'not real_api'"
+markers = [
+    "real_api: 真实云端 LLM API 冒烟（慢且有成本；显式运行: pytest -m real_api）",
+]
