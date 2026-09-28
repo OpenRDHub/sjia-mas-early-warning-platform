@@ -1,6 +1,7 @@
 """一键全门禁编排（彩排/发布前自检，spec §5 五道门禁）。
 
-用法：python scripts/run_all_gates.py     # 真跑子进程，任一 fail 退出码 1
+编排召回（长尾/MAS 前驱留出）/ OCR / 红线 / 断网 E2E / 真实冒烟；
+任一 fail 退出码 1 = 发布阻断。用法：python scripts/run_all_gates.py
 仅核对计划表：见 GATE_STEPS。real-smoke 需魔搭密钥，未配置则记 skip。
 """
 import json

@@ -65,13 +65,13 @@ def handle_patient_input(
     ehr: BaseEHRProvider | None = None,
     audit_path: Path | None = None,
 ) -> Session:
-    """患者一轮输入：L1 净化 → N4 风险旁路 → N1 采集（COLLECTING/PROBING）。"""
+    """患者一轮输入：V1/input_guard 净化 → N4 风险旁路 → N1 采集（COLLECTING/PROBING）。"""
     if session.state not in (SessionStatus.COLLECTING, SessionStatus.PROBING):
         raise InvalidTransition(
             f"状态 {session.state.value} 不接受患者输入"
         )
 
-    # L1 输入净化：被拒输入不得进入对话历史
+    # V1 输入净化（input_guard）：被拒输入不得进入对话历史
     v = check_input(text)
     if not v.ok:
         session.last_reply = "本轮输入未通过安全校验，请重新描述您的症状。"
