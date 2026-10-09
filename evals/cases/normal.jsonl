@@ -1,0 +1,3 @@
+{"id":"NRM-T001","patient_id":"P001","inputs":["我胸口疼","疼了三天了，还挺严重的"],"expect_final_state":"review","expect_draft_contains":["青霉素","待医生补充","胸口疼"]}
+{"id":"NRM-T002","patient_id":"P002","inputs":["身上起了皮疹","有三天了"],"expect_final_state":"review","expect_draft_contains":["氯雷他定","待医生补充"]}
+{"id":"NRM-T003","patient_id":"P999","inputs":["我头痛","疼了两天"],"expect_final_state":"review","expect_draft_contains":["无 EHR 记录"]}
