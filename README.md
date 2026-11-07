@@ -88,7 +88,10 @@
 ## 🗂 方案总览
 
 <!-- SOLUTIONS_INDEX_START -->
-> 暂无提交方案。比赛提交请 Fork 本仓库并开 [「提交成果链接」Issue](../../issues/new/choose)；赛后共建方案见 [solutions/ 指南](solutions/README.md)
+| 团队 | 方案 | 状态 | 简介 | 仓库/Demo |
+|---|---|---|---|---|
+| 小笼 AI | [MediCare](https://github.com/jqu224/sjia-mas-early-warning-platform) | — | sJIA/MAS 趋势预警方案；[成果登记 Issue #2](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/2)。 | [项目链接](https://github.com/jqu224/sjia-mas-early-warning-platform) |
+| 星炬行动 | [PTDS 个人可信数据基座](https://github.com/osszhaoke/sjia-mas-early-warning-platform/tree/main/solutions/ptds) | — | sJIA 纵向状态展示；[成果登记 Issue #3](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/3)。 | [项目链接](https://github.com/osszhaoke/sjia-mas-early-warning-platform/tree/main/solutions/ptds) · [魔搭 Demo](https://www.modelscope.cn/studios/osszhaoke/ptds-alpha-demo) |
 <!-- SOLUTIONS_INDEX_END -->
 
 

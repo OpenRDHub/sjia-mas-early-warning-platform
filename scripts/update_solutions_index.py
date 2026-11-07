@@ -88,7 +88,7 @@ def render(rows):
         if r["link_type"] == "dir":
             links.append(f"[solutions/{r['dir']}](solutions/{r['dir']})")
         elif r["repo"]:
-            links.append(f"[Fork 仓库]({r['repo']})")
+            links.append(f"[项目链接]({r['repo']})")
         if r["demo"]:
             links.append(f"[魔搭 Demo]({r['demo']})")
         cell = " · ".join(links) if links else "—"

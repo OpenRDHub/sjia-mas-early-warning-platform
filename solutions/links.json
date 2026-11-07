@@ -1,4 +1,20 @@
 {
   "_说明": "官方成果登记表。主办方根据「提交成果链接」Issue 核对后录入；README 的方案总览表由 GitHub Actions 自动读取本文件生成。字段：team 团队名 / solution 方案名 / repo Fork仓库链接 / demo 魔搭Demo链接 / status 状态 / summary 一句话简介",
-  "entries": []
+  "entries": [
+    {
+      "team": "小笼 AI",
+      "solution": "MediCare",
+      "repo": "https://github.com/jqu224/sjia-mas-early-warning-platform",
+      "summary": "sJIA/MAS 趋势预警方案；[成果登记 Issue #2](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/2)。",
+      "status": "—"
+    },
+    {
+      "team": "星炬行动",
+      "solution": "PTDS 个人可信数据基座",
+      "repo": "https://github.com/osszhaoke/sjia-mas-early-warning-platform/tree/main/solutions/ptds",
+      "demo": "https://www.modelscope.cn/studios/osszhaoke/ptds-alpha-demo",
+      "summary": "sJIA 纵向状态展示；[成果登记 Issue #3](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/3)。",
+      "status": "—"
+    }
+  ]
 }
