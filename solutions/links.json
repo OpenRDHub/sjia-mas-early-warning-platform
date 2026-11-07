@@ -15,6 +15,13 @@
       "demo": "https://www.modelscope.cn/studios/osszhaoke/ptds-alpha-demo",
       "summary": "sJIA 纵向状态展示；[成果登记 Issue #3](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/3)。",
       "status": "—"
+    },
+    {
+      "team": "帅帅",
+      "solution": "RareGuard（赛题归属待确认）",
+      "repo": "https://github.com/Handsome5201314/rareguard",
+      "summary": "提供为重症预警相关链接；仓库目前介绍 Dravet 夜间观察与病程记录，尚无经临床验证的动态医学预警，sJIA/MAS 对应关系待确认。",
+      "status": "待确认"
     }
   ]
 }

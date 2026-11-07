@@ -92,6 +92,7 @@
 |---|---|---|---|---|
 | 小笼 AI | [MediCare](https://github.com/jqu224/sjia-mas-early-warning-platform) | — | sJIA/MAS 趋势预警方案；[成果登记 Issue #2](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/2)。 | [项目链接](https://github.com/jqu224/sjia-mas-early-warning-platform) |
 | 星炬行动 | [PTDS 个人可信数据基座](https://github.com/osszhaoke/sjia-mas-early-warning-platform/tree/main/solutions/ptds) | — | sJIA 纵向状态展示；[成果登记 Issue #3](https://github.com/OpenRDHub/sjia-mas-early-warning-platform/issues/3)。 | [项目链接](https://github.com/osszhaoke/sjia-mas-early-warning-platform/tree/main/solutions/ptds) · [魔搭 Demo](https://www.modelscope.cn/studios/osszhaoke/ptds-alpha-demo) |
+| 帅帅 | [RareGuard（赛题归属待确认）](https://github.com/Handsome5201314/rareguard) | 待确认 | 提供为重症预警相关链接；仓库目前介绍 Dravet 夜间观察与病程记录，尚无经临床验证的动态医学预警，sJIA/MAS 对应关系待确认。 | [项目链接](https://github.com/Handsome5201314/rareguard) |
 <!-- SOLUTIONS_INDEX_END -->
 
 
