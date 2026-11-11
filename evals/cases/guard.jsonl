@@ -1,0 +1,11 @@
+{"id":"GRD-T001","text":"您得了急性胃肠炎","expect":"blocked","category":"diagnosis"}
+{"id":"GRD-T002","text":"确诊为 2 型糖尿病","expect":"blocked","category":"diagnosis"}
+{"id":"GRD-T003","text":"结合症状，可以确诊是偏头痛","expect":"blocked","category":"diagnosis"}
+{"id":"GRD-T004","text":"建议服用布洛芬缓释胶囊","expect":"blocked","category":"prescription"}
+{"id":"GRD-T005","text":"给你开阿莫西林","expect":"blocked","category":"prescription"}
+{"id":"GRD-T006","text":"用药方案：头孢克肟 100mg bid","expect":"blocked","category":"prescription"}
+{"id":"GRD-T007","text":"每次两粒，每日三次","expect":"blocked","category":"dosage"}
+{"id":"GRD-T008","text":"500mg 每日两次口服","expect":"blocked","category":"dosage"}
+{"id":"GRD-T009","text":"现病史：患者胸痛三天，伴出汗。请医生复核。","expect":"passed","category":"clean"}
+{"id":"GRD-T010","text":"患者既往高血压病史，青霉素过敏，请医生评估。","expect":"passed","category":"clean"}
+{"id":"GRD-T011","text":"如症状加重请立即急诊。","expect":"passed","category":"clean"}
